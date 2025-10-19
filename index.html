@@ -106,8 +106,8 @@
         }
         .animation-wrapper {
             flex: 1;
-            min-width: 300px;
-            max-width: 500px; /* Limite máximo para a animação */
+            min-width: 350px; 
+            max-width: 500px; 
             height: 350px;
             background: #eaf2f8;
             border-radius: 12px;
@@ -115,9 +115,9 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            overflow: hidden;
+            overflow: hidden; /* IMPORTANTE: Garante que nada vaze */
             border: 2px solid #d6eaf8;
-            margin: 0 auto; /* Centraliza em telas pequenas */
+            margin: 0 auto; 
         }
         .chip-representation {
             width: 120px;
@@ -134,6 +134,10 @@
             z-index: 10;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             text-align: center;
+            position: absolute; 
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); 
         }
         .chip-representation i {
             font-size: 1.5em;
@@ -151,9 +155,9 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -80px);
+            transform: translate(-50%, calc(-50% - 70px)); /* Posicionado acima do centro do chip */
             border-radius: 4px;
-            z-index: 5;
+            z-index: 15; /* Acima do chip */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -161,53 +165,61 @@
             color: #2c3e50;
             font-weight: 600;
         }
+        
+        /* REMOVIDO/COMENTADO O CSS DOS CANOS */
+        /*
         .pipe {
             position: absolute;
-            height: 30px;
-            width: 250px;
-            background-color: #7f8c8d;
-            z-index: 1;
+            height: 30px; 
+            width: 50%; 
+            background-color: #95a5a6; 
+            z-index: 5; 
         }
         .pipe-in {
-            top: 50%;
-            left: -100px;
-            transform: translateY(-40px);
+            top: calc(50% - 40px - 15px); 
+            left: 0;
+            border-top-right-radius: 15px; 
+            border-bottom-right-radius: 15px;
         }
         .pipe-out {
-            top: 50%;
-            right: -100px;
-            transform: translateY(10px);
+            top: calc(50% + 10px - 15px); 
+            right: 0;
+            border-top-left-radius: 15px; 
+            border-bottom-left-radius: 15px;
         }
-        /* Animação do Fluido */
+        */
+        
+        /* *** ANIMAÇÃO DO FLUIDO (Sem mudança nos keyframes) *** */
         .fluid {
             width: 15px;
             height: 15px;
             border-radius: 50%;
             position: absolute;
-            animation-duration: 4s;
-            animation-iteration-count: infinite;
-            animation-timing-function: linear;
+            top: calc(50% - 40px - 7.5px); 
+            left: 0; 
+            animation: flow-path 4s linear infinite; 
+            opacity: 0; 
+            z-index: 6; /* Para garantir que fiquem acima do fundo mas abaixo do chip/plate */
         }
-        .fluid-in-1 { background: var(--fluid-liquid); top: 50%; left: 0; transform: translateY(-40px); animation-name: flow-in; }
-        .fluid-in-2 { background: var(--fluid-liquid); top: 50%; left: 0; transform: translateY(-40px); animation-name: flow-in; animation-delay: 2s; }
-        .fluid-out-1 { background: var(--temp-hot); top: 50%; left: 165px; transform: translateY(10px); animation-name: flow-out; }
-        .fluid-out-2 { background: var(--temp-hot); top: 50%; left: 165px; transform: translateY(10px); animation-name: flow-out; animation-delay: 2s; }
 
-        @keyframes flow-in {
-            0% { left: 0; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { left: 165px; opacity: 0; }
-        }
-        @keyframes flow-out {
-            0% { left: 165px; opacity: 1; }
-            90% { opacity: 1; }
-            100% { left: 300px; opacity: 0; }
+        .fluid-1 { animation-delay: 0s; }
+        .fluid-2 { animation-delay: 1s; }
+        .fluid-3 { animation-delay: 2s; }
+        .fluid-4 { animation-delay: 3s; }
+
+        @keyframes flow-path {
+            0% { left: 0%; top: calc(50% - 40px - 7.5px); opacity: 0; background: var(--fluid-liquid); } 
+            10% { opacity: 1; } 
+            45% { left: calc(50% - 10px); top: calc(50% - 40px - 7.5px); background: var(--fluid-liquid); } 
+            55% { left: calc(50% + 10px); top: calc(50% + 10px - 7.5px); background: var(--temp-hot); } 
+            90% { opacity: 1; } 
+            100% { left: 100%; top: calc(50% + 10px - 7.5px); opacity: 0; background: var(--temp-hot); } 
         }
         
+        /* Texto Explicativo */
         .explanation-text {
             flex: 2;
-            min-width: 300px; /* Garante que o texto não seja espremido */
+            min-width: 300px; 
         }
         .explanation-text h2 {
             color: var(--color-primary);
@@ -216,6 +228,7 @@
             color: var(--chip-base-color);
             border-bottom: 2px solid #e0e0e0;
             padding-bottom: 5px;
+            margin-top: 20px;
         }
         .explanation-text p {
             font-size: 1.1em;
@@ -236,7 +249,7 @@
         }
 
 
-        /* Estilos Originais (sem mudanças) */
+        /* Estilos Originais (sem mudanças significativas) */
         .scenario-selector {
             text-align: center;
             margin-bottom: 40px;
@@ -266,13 +279,13 @@
         }
         .visualization-panel {
             display: flex;
-            flex-wrap: wrap; /* Permite quebrar a linha em telas menores */
+            flex-wrap: wrap; 
             justify-content: space-between;
             gap: 30px;
         }
         .server-view {
             flex: 2;
-            min-width: 300px; /* Largura mínima */
+            min-width: 300px; 
             min-height: 450px;
             position: relative;
             overflow: hidden;
@@ -286,10 +299,11 @@
             text-align: center;
             color: var(--color-primary);
             padding-top: 10px;
+            font-size: 1.5em; 
         }
         .metrics-view {
             flex: 1;
-            min-width: 300px; /* Largura mínima */
+            min-width: 300px; 
             display: flex;
             flex-direction: column;
             justify-content: space-around;
@@ -301,6 +315,7 @@
         .metrics-view h2 {
             text-align: center;
             color: var(--color-primary);
+             font-size: 1.5em; 
         }
         .chip-container {
             position: absolute;
@@ -548,7 +563,7 @@
                         <i class="fas fa-bolt metric-icon" style="color: var(--color-success);"></i>
                     </div>
                     <div class="metric-box" id="m-delta-p">
-                        <div><div class="label">Regime / Perda de Carga ($\Delta P$)</div><div class="metric-value" id="val-delta-p">Baixa (Ar)</div></div>
+                        <div><div class="label">Regime / Perda de Carga (ΔP)</div><div class="metric-value" id="val-delta-p">Baixa (Ar)</div></div>
                         <i class="fas fa-tachometer-alt metric-icon" style="color: var(--color-warning);"></i>
                     </div>
                     <div class="metric-box" id="m-payback">
@@ -568,20 +583,18 @@
             <div class="concepts-container">
                 
                 <div class="animation-wrapper">
-                    <div class="pipe pipe-in"></div>
-                    <div class="pipe pipe-out"></div>
-                    
                     <div class="cold-plate">COLD PLATE</div>
+                    
                     <div class="chip-representation">
                         <i class="fas fa-microchip"></i>
                         CHIP
                         <span>(CPU/GPU)</span>
                     </div>
 
-                    <div class="fluid fluid-in-1"></div>
-                    <div class="fluid fluid-in-2"></div>
-                    <div class="fluid fluid-out-1"></div>
-                    <div class="fluid fluid-out-2"></div>
+                    <div class="fluid fluid-1"></div>
+                    <div class="fluid fluid-2"></div>
+                    <div class="fluid fluid-3"></div>
+                    <div class="fluid fluid-4"></div>
                 </div>
 
                 <div class="explanation-text">
@@ -595,10 +608,10 @@
                         Esta animação demonstra o método <strong>monofásico</strong>:
                     </p>
                     <ol>
-                        <li>Um fluido <span class="text-cool">frio</span> (dielétrico ou água tratada) é bombeado para a cold plate.</li>
+                        <li>Um fluido <span class="text-cool">frio</span> (dielétrico ou água tratada) é bombeado para a cold plate (representado pelas bolinhas azuis entrando pela esquerda).</li>
                         <li>O fluido passa por microcanais dentro da placa, absorvendo o calor do chip por <strong>condução</strong> e <strong>convecção</strong>.</li>
-                        <li>O fluido permanece em estado líquido, mas agora <span class="text-hot">aquecido</span>.</li>
-                        <li>Este fluido <span class="text-hot">quente</span> é bombeado para fora do servidor, em direção a uma Unidade de Distribuição de Refrigeração (CDU) para ser resfriado novamente, completando o ciclo.</li>
+                        <li>O fluido permanece em estado líquido, mas agora <span class="text-hot">aquecido</span> (representado pelas bolinhas mudando para vermelho ao passar pelo chip).</li>
+                        <li>Este fluido <span class="text-hot">quente</span> é bombeado para fora do servidor (saindo pela direita), em direção a uma Unidade de Distribuição de Refrigeração (CDU) para ser resfriado novamente, completando o ciclo.</li>
                     </ol>
                     <p>
                         Este método é muito mais eficiente que o ar, pois a capacidade térmica do líquido é milhares de vezes maior.
@@ -652,8 +665,8 @@
             explanation: `
                 <strong>CENÁRIO 3: SmartCool DTC-Pro (Otimizado por ML).</strong>
                 O módulo de Machine Learning ajusta dinamicamente a vazão do fluido para atingir o <strong>Limiar da Turbulência</strong> (Número de Reynolds ideal). A <strong>Fluidodinâmica</strong> é otimizada para máxima <strong>Convecção</strong> sem desperdício de energia.
-                A transferência de calor é máxima (linhas azuis/laranja/vermelhas), reduzindo a temperatura do chip para <strong>60°C</strong>. A perda de carga ($\Delta P$) é otimizada, garantindo que a potência de bombeamento (P $\propto$ Q $\cdot$ $\Delta P$) seja mínima para a eficiência máxima. O resultado é um PUE de <strong><span class="highlight">1.15</span></strong> e um Payback de <strong><span class="highlight">1.26 anos</span></strong>.
-            `
+                A transferência de calor é máxima (linhas azuis/laranja/vermelhas), reduzindo a temperatura do chip para <strong>60°C</strong>. A perda de carga (ΔP) é otimizada, garantindo que a potência de bombeamento (P ∝ Q ⋅ ΔP) seja mínima para a eficiência máxima. O resultado é um PUE de <strong><span class="highlight">1.15</span></strong> e um Payback de <strong><span class="highlight">1.26 anos</span></strong>.
+            ` // <-- ΔP SUBSTITUÍDO AQUI
         }
     };
 
