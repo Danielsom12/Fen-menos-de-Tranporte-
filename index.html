@@ -3,712 +3,439 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação SmartCool DTC-Pro: Fluidodinâmica e ROI</title>
+    <title>SmartCool DTC-Pro: DESEMPENHO E ROI MÁXIMO COM ANIMAÇÃO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
+        /* Variáveis de Cor - Versão Clean/Original com refinamentos */
         :root {
-            --color-primary: #007bff;
-            --color-success: #28a745;
-            --color-warning: #ffc107;
-            --color-danger: #dc3545;
-            --color-background: #f0f4f8;
-            --color-card: #ffffff;
-            --temp-hot: #e74c3c; /* Vermelho */
-            --temp-warm: #f39c12; /* Laranja */
-            --temp-cool: #2ecc71; /* Verde */
-            --fluid-air: #a9cce3; /* Azul claro para o ar */
-            --fluid-liquid: #3498db; /* Azul para o líquido */
-            --chip-base-color: #34495e;
-            --chip-top-color: #5dade2;
-            --cooler-base-color: #ecf0f1;
+            --color-primary: #007bff; /* Azul suave (Usado para PUE/Payback no destaque) */
+            --color-success: #28a745; /* Verde agradável (Usado para PUE/Payback no destaque) */
+            --color-danger: #dc3545; 
+            --color-background: #f0f4f8; 
+            --color-card: #ffffff; 
+            
+            --temp-hot: #e74c3c; 
+            --temp-warm: #f39c12; 
+            --temp-cool: #00b894; 
+            
+            --chip-base-color: #34495e; 
+            --fan-color: #7f8c8d; 
+            --particle-start-color: rgba(255, 170, 0, 0.8); 
+            --particle-end-color: #007bff;   
         }
+
+        /* AJUSTE: Removido o overflow: hidden para permitir a rolagem */
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Reset Básico e Layout */
         body {
             font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 20px;
             background-color: var(--color-background);
             color: #34495e;
-            transition: background-color 0.5s;
+            padding: 20px; 
+            box-sizing: border-box; 
         }
         .container {
-            max-width: 1400px;
-            margin: auto;
+            max-width: 1200px; 
+            width: 100%; 
+            margin: auto; 
+            
             background: var(--color-card);
-            padding: 30px;
+            padding: 40px; 
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            
+            display: flex;
+            flex-direction: column;
+            transition: all 0.5s ease-out; 
         }
         h1 {
             color: var(--color-primary);
             text-align: center;
-            padding-bottom: 15px;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-        }
-        
-        /* 2. CSS: Estilos para as Abas de Navegação */
-        .tab-navigation {
-            display: flex;
-            justify-content: center;
-            border-bottom: 2px solid #e0e0e0;
-            margin-bottom: 30px;
-        }
-        .tab-btn {
-            padding: 14px 30px;
-            cursor: pointer;
-            border: none;
-            background-color: transparent;
-            font-size: 18px;
-            font-weight: 600;
-            color: #7f8c8d;
-            position: relative;
-            transition: color 0.3s;
-        }
-        .tab-btn::after {
-            content: '';
-            display: block;
-            width: 0;
-            height: 4px;
-            background: var(--color-primary);
-            transition: width 0.3s ease-out;
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .tab-btn:hover {
-            color: #34495e;
-        }
-        .tab-btn.active {
-            color: var(--color-primary);
-        }
-        .tab-btn.active::after {
-            width: 100%;
-        }
-        
-        /* O conteúdo de cada aba */
-        .tab-content {
-            display: none; /* Escondido por padrão */
-        }
-        .tab-content.active {
-            display: block; /* Mostra o conteúdo da aba ativa */
-        }
-        
-        /* * 3. CSS ADICIONADO: Estilos para a nova aba de Conceitos e Animação
-        */
-        .concepts-container {
-            display: flex;
-            flex-wrap: wrap; /* Permite quebrar a linha em telas menores */
-            gap: 30px;
-            align-items: flex-start;
-            padding: 20px 0;
-        }
-        .animation-wrapper {
-            flex: 1;
-            min-width: 350px; 
-            max-width: 500px; 
-            height: 350px;
-            background: #eaf2f8;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden; /* IMPORTANTE: Garante que nada vaze */
-            border: 2px solid #d6eaf8;
-            margin: 0 auto; 
-        }
-        .chip-representation {
-            width: 120px;
-            height: 120px;
-            background: var(--chip-base-color);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            color: white;
-            font-weight: bold;
-            font-size: 1.2em;
-            z-index: 10;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            text-align: center;
-            position: absolute; 
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%); 
-        }
-        .chip-representation i {
-            font-size: 1.5em;
-            margin-bottom: 5px;
-        }
-        .chip-representation span {
-            font-size: 0.8em;
-            font-weight: normal;
-            opacity: 0.8;
-        }
-        .cold-plate {
-            width: 100px;
-            height: 20px;
-            background: #bdc3c7;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, calc(-50% - 70px)); /* Posicionado acima do centro do chip */
-            border-radius: 4px;
-            z-index: 15; /* Acima do chip */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7em;
-            color: #2c3e50;
-            font-weight: 600;
-        }
-        
-        /* REMOVIDO/COMENTADO O CSS DOS CANOS */
-        /*
-        .pipe {
-            position: absolute;
-            height: 30px; 
-            width: 50%; 
-            background-color: #95a5a6; 
-            z-index: 5; 
-        }
-        .pipe-in {
-            top: calc(50% - 40px - 15px); 
-            left: 0;
-            border-top-right-radius: 15px; 
-            border-bottom-right-radius: 15px;
-        }
-        .pipe-out {
-            top: calc(50% + 10px - 15px); 
-            right: 0;
-            border-top-left-radius: 15px; 
-            border-bottom-left-radius: 15px;
-        }
-        */
-        
-        /* *** ANIMAÇÃO DO FLUIDO (Sem mudança nos keyframes) *** */
-        .fluid {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            position: absolute;
-            top: calc(50% - 40px - 7.5px); 
-            left: 0; 
-            animation: flow-path 4s linear infinite; 
-            opacity: 0; 
-            z-index: 6; /* Para garantir que fiquem acima do fundo mas abaixo do chip/plate */
+            font-size: 3em; 
+            margin-bottom: 40px; 
+            font-weight: 700;
         }
 
-        .fluid-1 { animation-delay: 0s; }
-        .fluid-2 { animation-delay: 1s; }
-        .fluid-3 { animation-delay: 2s; }
-        .fluid-4 { animation-delay: 3s; }
-
-        @keyframes flow-path {
-            0% { left: 0%; top: calc(50% - 40px - 7.5px); opacity: 0; background: var(--fluid-liquid); } 
-            10% { opacity: 1; } 
-            45% { left: calc(50% - 10px); top: calc(50% - 40px - 7.5px); background: var(--fluid-liquid); } 
-            55% { left: calc(50% + 10px); top: calc(50% + 10px - 7.5px); background: var(--temp-hot); } 
-            90% { opacity: 1; } 
-            100% { left: 100%; top: calc(50% + 10px - 7.5px); opacity: 0; background: var(--temp-hot); } 
-        }
-        
-        /* Texto Explicativo */
-        .explanation-text {
-            flex: 2;
-            min-width: 300px; 
-        }
-        .explanation-text h2 {
-            color: var(--color-primary);
-        }
-        .explanation-text h3 {
-            color: var(--chip-base-color);
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 5px;
-            margin-top: 20px;
-        }
-        .explanation-text p {
-            font-size: 1.1em;
-            line-height: 1.7;
-            margin-bottom: 15px;
-        }
-        .explanation-text strong {
-            color: var(--chip-base-color);
-        }
-        .explanation-text .text-cool { color: var(--fluid-liquid); font-weight: bold; }
-        .explanation-text .text-hot { color: var(--temp-hot); font-weight: bold; }
-        .explanation-text ol {
-            padding-left: 20px;
-        }
-        .explanation-text li {
-            margin-bottom: 10px;
-            line-height: 1.6;
-        }
-
-
-        /* Estilos Originais (sem mudanças significativas) */
+        /* Seleção de Cenário */
         .scenario-selector {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 50px; 
+        }
+        .scenario-selector p {
+            font-size: 1.2em; 
+            margin-bottom: 25px; 
+            color: #555;
         }
         .scenario-selector button {
-            padding: 14px 30px;
-            margin: 0 10px;
-            font-size: 17px;
+            padding: 14px 30px; 
+            margin: 0 12px; 
+            font-size: 17px; 
             cursor: pointer;
             border: 2px solid transparent;
             border-radius: 30px;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             font-weight: 600;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            background-color: var(--color-card); 
+            color: #34495e;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
         }
         #btn-ar { background-color: var(--temp-hot); color: white; }
         #btn-dtc-laminar { background-color: var(--temp-warm); color: #333; }
-        #btn-dtc-ml { background-color: var(--color-success); color: white; }
-        .scenario-selector button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-        }
+        #btn-dtc-ml { background-color: var(--temp-cool); color: white; }
         .scenario-selector button.active {
             border: 3px solid #34495e;
-            transform: translateY(-1px);
         }
+
+        /* Painel de Visualização e Métricas */
         .visualization-panel {
             display: flex;
+            justify-content: space-between; 
+            align-items: flex-start;
+            gap: 40px; 
             flex-wrap: wrap; 
-            justify-content: space-between;
-            gap: 30px;
         }
         .server-view {
-            flex: 2;
-            min-width: 300px; 
-            min-height: 450px;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(145deg, #ecf0f1, #dcdfe3);
-            border-radius: 12px;
-            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
-            perspective: 1000px;
-            transition: all 0.5s;
-        }
-        .server-view h2 {
+            flex: 1;
+            min-width: 350px; 
+            max-width: 45%; 
             text-align: center;
-            color: var(--color-primary);
-            padding-top: 10px;
-            font-size: 1.5em; 
+            padding: 20px; 
+            border-radius: 10px;
+            background-color: #fcfcfc;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         .metrics-view {
-            flex: 1;
-            min-width: 300px; 
+            flex: 2;
+            min-width: 500px; 
+            max-width: 50%; 
             display: flex;
             flex-direction: column;
-            justify-content: space-around;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
-            background-color: #ecf0f1;
+            gap: 25px; 
         }
-        .metrics-view h2 {
-            text-align: center;
-            color: var(--color-primary);
-             font-size: 1.5em; 
-        }
-        .chip-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotateX(15deg) rotateY(-15deg);
-            z-index: 20;
-            transition: transform 0.5s ease-out;
-        }
-        .chip {
-            width: 70px;
-            height: 70px;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: var(--chip-top-color); 
-            border-radius: 8px;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-            font-size: 1em;
-            transition: background-color 0.8s, box-shadow 0.8s;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-        }
-        .chip-base {
-            width: 90px;
-            height: 90px;
+        
+        /* Representação do Chip (MAIOR) */
+        .chip-display {
+            width: 220px; 
+            height: 220px; 
+            margin: 30px auto 50px auto; 
+            border-radius: 20px; 
             background-color: var(--chip-base-color);
-            border-radius: 12px;
-            position: relative;
-            box-shadow: 8px 8px 20px rgba(0,0,0,0.5);
-        }
-        .chip-pin {
-            position: absolute;
-            width: 8px;
-            height: 20px;
-            background-color: var(--chip-top-color);
-            border-radius: 2px;
-            box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-            transform-origin: center bottom;
-        }
-        .chip-pin:nth-child(1) { top: -10px; left: 15px; transform: rotateX(70deg); }
-        .chip-pin:nth-child(2) { top: -10px; left: 35px; transform: rotateX(70deg); }
-        .chip-pin:nth-child(3) { top: -10px; left: 55px; transform: rotateX(70deg); }
-        .chip-pin:nth-child(4) { top: 15px; left: -10px; transform: rotateY(-70deg); }
-        .chip-pin:nth-child(5) { top: 35px; left: -10px; transform: rotateY(-70deg); }
-        .chip-pin:nth-child(6) { top: 55px; left: -10px; transform: rotateY(-70deg); }
-        .chip-pin:nth-child(7) { bottom: -10px; left: 15px; transform: rotateX(-70deg); }
-        .chip-pin:nth-child(8) { bottom: -10px; left: 35px; transform: rotateX(-70deg); }
-        .chip-pin:nth-child(9) { bottom: -10px; left: 55px; transform: rotateX(-70deg); }
-        .chip-pin:nth-child(10) { top: 15px; right: -10px; transform: rotateY(70deg); }
-        .chip-pin:nth-child(11) { top: 35px; right: -10px; transform: rotateY(70deg); }
-        .chip-pin:nth-child(12) { top: 55px; right: -10px; transform: rotateY(70deg); }
-        .cooler {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotateX(15deg) rotateY(-15deg);
-            z-index: 10;
-            transition: opacity 0.8s, transform 0.8s;
-        }
-        .air-sink {
-            width: 180px;
-            height: 180px;
-            background-color: var(--cooler-base-color);
-            border: 2px solid #7f8c8d;
-            border-radius: 15px;
-            opacity: 0;
-            transition: opacity 0.8s;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #34495e;
-            font-weight: 500;
-            box-shadow: 8px 8px 15px rgba(0, 0, 0, 0.2);
-        }
-        .dtc-plate {
-            width: 120px;
-            height: 120px;
-            background-color: var(--fluid-liquid); 
-            border: 3px solid #2980b9;
-            border-radius: 8px;
-            opacity: 0;
-            transition: opacity 0.8s;
-            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             color: white;
+            font-size: 1.2em; 
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4); 
+            transition: all 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden; 
+        }
+        .chip-display i.fa-microchip {
+            font-size: 4em; 
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 3;
+        }
+        .temp-overlay {
+            position: absolute;
+            top: 0; bottom: 0; left: 0; right: 0;
+            border-radius: 20px;
+            opacity: 0.7; 
+            transition: background-color 0.8s;
+            z-index: 1;
+        }
+        .chip-label {
+            font-size: 1.1em; 
             font-weight: 500;
             position: relative;
-            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            z-index: 3;
         }
-        @keyframes flow-animation {
-            0% { transform: translate(-100%, 0); opacity: 0; }
-            30% { opacity: 1; }
-            100% { transform: translate(100%, 0); opacity: 0; }
-        }
-        .flow-line {
+
+        /* -- ANIMAÇÕES ESPECÍFICAS DO RESFRIAMENTO -- */
+        #cooling-animation-area {
             position: absolute;
-            height: 8px;
-            width: 100px;
-            border-radius: 4px;
-            transition: background 0.5s;
-            animation: flow-animation 2s linear infinite;
-            z-index: 30;
-        }
-        .fluid-flow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 200px;
-            height: 120px;
-            transform: translate(-50%, -50%) rotateX(15deg) rotateY(-15deg);
-            z-index: 30;
+            top: 0; bottom: 0; left: 0; right: 0;
+            z-index: 2;
             overflow: hidden;
+            border-radius: 20px; 
         }
+
+        /* ANIMAÇÃO DE VENTO (MAIOR E METADE VISÍVEL) */
+        .cooler-fan {
+            position: absolute;
+            bottom: -50px; 
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 160px; 
+            color: var(--fan-color);
+            animation: spin 1.5s linear infinite; 
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 1; 
+        }
+        @keyframes spin {
+            0% { transform: translateX(-50%) rotate(0deg); }
+            100% { transform: translateX(-50%) rotate(360deg); }
+        }
+
+        /* ANIMAÇÃO DE PARTÍCULAS DE RESFRIAMENTO (MAIOR E MAIS INTENSA) */
+        .cooling-particle {
+            position: absolute;
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%;
+            background: radial-gradient(circle at center, var(--particle-start-color) 0%, var(--particle-end-color) 100%);
+            opacity: 0;
+            animation: particle-flow 2.5s linear infinite; 
+            z-index: 2; 
+        }
+
+        @keyframes particle-flow {
+            0% { top: 0%; opacity: 0; transform: scale(0.6); }
+            20% { opacity: 0.9; transform: scale(1.1); } 
+            80% { opacity: 0.9; transform: scale(1.1); }
+            100% { top: 100%; opacity: 0; transform: scale(0.6); }
+        }
+
+        /* Metricas - DESTAQUE MÁXIMO */
         .metric-box {
-            background-color: var(--color-card);
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            border-left: 6px solid;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.4s;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 25px; 
+            border-radius: 15px; 
+            border-left: 10px solid; /* Cor definida via JS */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
         }
-        .metric-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        #m-temp { border-color: var(--temp-hot); }
-        #m-pue { border-color: var(--color-success); }
-        #m-delta-p { border-color: var(--color-warning); }
-        #m-payback { border-color: var(--color-primary); }
         .metric-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: #2c3e50;
-            transition: color 0.5s;
+            font-size: 56px; 
+            font-weight: 900;
+            color: #2c3e50; /* Cor de texto padrão que será sobrescrita */
+            transition: color 0.5s ease-in-out;
+            text-shadow: none;
         }
         .label {
-            font-size: 15px;
+            font-size: 17px; 
             color: #7f8c8d;
-            margin-bottom: 5px;
+            font-weight: 600;
         }
         .metric-icon {
-            font-size: 30px;
-            opacity: 0.7;
+            font-size: 45px; 
+            opacity: 0.8;
+            transition: color 0.5s ease-in-out;
         }
-        .explanation {
-            margin-top: 30px;
-            padding: 25px;
-            border-radius: 12px;
-            background-color: #e8f0fe;
-            border-left: 6px solid var(--color-primary);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-        .explanation h3 {
-            color: var(--color-primary);
-            margin-top: 0;
-        }
-        .explanation strong {
-            color: #c0392b;
+
+        .metric-difference {
+            font-size: 18px; 
+            padding: 12px 18px; 
+            margin-top: 15px; 
             font-weight: 700;
-        }
-        .explanation span.highlight {
-            color: var(--color-success);
-            font-weight: 700;
-        }
-        .explanation p {
-            line-height: 1.6;
-            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1><i class="fas fa-microchip"></i> Simulação SmartCool DTC-Pro: Fluidodinâmica e ROI</h1>
+    <h1><i class="fas fa-microchip"></i> IMPACTO DO SMARTCOOL NO DATACENTER</h1>
 
-    <div class="tab-navigation">
-        <button class="tab-btn" data-tab="tab-simulacao">
-            <i class="fas fa-wind"></i> Simulação Fluidodinâmica (Chip)
-        </button>
-        <button class="tab-btn" data-tab="tab-conceitos">
-            <i class="fas fa-book-open"></i> Conceitos de Resfriamento
-        </button>
+    <div class="scenario-selector">
+        <p>Selecione a Tecnologia de Resfriamento para ver as MÉTRICAS CRÍTICAS e a ANIMAÇÃO DE FLUIDOS:</p>
+        <button id="btn-ar"><i class="fas fa-fan"></i> 1. Ar Tradicional</button>
+        <button id="btn-dtc-laminar"><i class="fas fa-tint"></i> 2. DTC com Fluxo Laminar</button>
+        <button id="btn-dtc-ml"><i class="fas fa-microchip"></i> 3. SmartCool DTC-Pro (Otimizado)</button> 
     </div>
 
-    <div id="tab-content-container">
-
-        <div class="tab-content" id="tab-simulacao">
-            <div class="scenario-selector">
-                <p>Selecione o Cenário para visualizar as mudanças em <strong>Transferência de Calor</strong> e <strong>Eficiência Energética (PUE)</strong>:</p>
-                <button id="btn-ar"><i class="fas fa-fan"></i> 1. Ar Tradicional</button>
-                <button id="btn-dtc-laminar"><i class="fas fa-tint"></i> 2. DTC com Fluxo Laminar (Sub-otimizado)</button>
-                <button id="btn-dtc-ml"><i class="fas fa-brain"></i> 3. SmartCool DTC-Pro (Otimizado por ML)</button>
-            </div>
-
-            <div class="visualization-panel">
-                <div class="server-view">
-                    <h2><i class="fas fa-server"></i> VISUALIZAÇÃO TÉRMICA DO CHIP</h2>
-                    <div class="fluid-flow" id="fluid-flow-area"></div>
-                    <div class="cooler">
-                        <div class="air-sink" id="air-sink">
-                            <i class="fas fa-cloud"></i> Resfriamento a Ar
-                        </div>
-                        <div class="dtc-plate" id="dtc-plate">
-                            <i class="fas fa-water"></i> Cold Plate DTC
-                        </div>
-                    </div>
-                    <div class="chip-container">
-                        <div class="chip-base">
-                            <div class="chip-pin"></div>
-                            <div class="chip-pin"></div>
-                            <div class="chip-pin"></div>
-                            <div class="chip-pin"></div>
-                            <div class="chip-pin"></div>
-                            <div class="chip-pin"></div>
-                            <div class="chip-pin"></div>
-                            <div class="chip-pin"></div>
-                            <div class="chip-pin"></div>
-                            <div class="chip-pin"></div>
-                            <div class="chip-pin"></div>
-                            <div class="chip-pin"></div>
-                            <div class="chip" id="chip-temp">CHIP</div>
-                        </div>
-                    </div>
+    <div class="visualization-panel">
+        <div class="server-view">
+            <h2 style="font-size: 1.6em; color: var(--chip-base-color);">VISUALIZAÇÃO TÉRMICA</h2>
+            <div class="chip-display" id="chip-display">
+                <div class="temp-overlay" id="temp-overlay"></div>
+                <div class="chip-label">
+                    <i class="fas fa-microchip"></i>
+                    <span id="val-chip-temp">90°C</span>
                 </div>
-
-                <div class="metrics-view">
-                    <h2><i class="fas fa-chart-line"></i> MÉTRICAS DE OPERAÇÃO</h2>
-                    <div class="metric-box" id="m-temp">
-                        <div><div class="label">Temperatura do Chip (Condução)</div><div class="metric-value" id="val-temp">90°C</div></div>
-                        <i class="fas fa-thermometer-full metric-icon" style="color: var(--temp-hot);"></i>
-                    </div>
-                    <div class="metric-box" id="m-pue">
-                        <div><div class="label">PUE (Power Usage Effectiveness)</div><div class="metric-value" id="val-pue">1.5</div></div>
-                        <i class="fas fa-bolt metric-icon" style="color: var(--color-success);"></i>
-                    </div>
-                    <div class="metric-box" id="m-delta-p">
-                        <div><div class="label">Regime / Perda de Carga (ΔP)</div><div class="metric-value" id="val-delta-p">Baixa (Ar)</div></div>
-                        <i class="fas fa-tachometer-alt metric-icon" style="color: var(--color-warning);"></i>
-                    </div>
-                    <div class="metric-box" id="m-payback">
-                        <div><div class="label">Payback Estimado (ROI)</div><div class="metric-value" id="val-payback">Indeterminado</div></div>
-                        <i class="fas fa-money-bill-wave metric-icon" style="color: var(--color-primary);"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="explanation">
-                <h3><i class="fas fa-flask"></i> Justificativa Baseada em Fenômenos de Transporte</h3>
-                <p id="scenario-explanation">Selecione um cenário acima para iniciar a simulação e visualizar o impacto da <strong>Condução</strong>, <strong>Convecção</strong> e <strong>Fluidodinâmica</strong> na economia operacional.</p>
-            </div>
-        </div>
-
-        <div class="tab-content" id="tab-conceitos">
-            <div class="concepts-container">
                 
-                <div class="animation-wrapper">
-                    <div class="cold-plate">COLD PLATE</div>
-                    
-                    <div class="chip-representation">
-                        <i class="fas fa-microchip"></i>
-                        CHIP
-                        <span>(CPU/GPU)</span>
-                    </div>
-
-                    <div class="fluid fluid-1"></div>
-                    <div class="fluid fluid-2"></div>
-                    <div class="fluid fluid-3"></div>
-                    <div class="fluid fluid-4"></div>
+                <div id="cooling-animation-area">
+                    <i class="fas fa-fan cooler-fan" id="cooler-fan"></i>
                 </div>
-
-                <div class="explanation-text">
-                    <h2>Como Funciona o Direct-to-Chip (DTC)?</h2>
-                    <p>
-                        O resfriamento direto no chip (DTC) é uma técnica de alta eficiência onde um líquido de arrefecimento é bombeado diretamente para uma <strong>"cold plate"</strong> (placa fria) que fica em contato direto com o processador (CPU ou GPU).
-                    </p>
-                    
-                    <h3>Resfriamento Monofásico (Single-Phase)</h3>
-                    <p>
-                        Esta animação demonstra o método <strong>monofásico</strong>:
-                    </p>
-                    <ol>
-                        <li>Um fluido <span class="text-cool">frio</span> (dielétrico ou água tratada) é bombeado para a cold plate (representado pelas bolinhas azuis entrando pela esquerda).</li>
-                        <li>O fluido passa por microcanais dentro da placa, absorvendo o calor do chip por <strong>condução</strong> e <strong>convecção</strong>.</li>
-                        <li>O fluido permanece em estado líquido, mas agora <span class="text-hot">aquecido</span> (representado pelas bolinhas mudando para vermelho ao passar pelo chip).</li>
-                        <li>Este fluido <span class="text-hot">quente</span> é bombeado para fora do servidor (saindo pela direita), em direção a uma Unidade de Distribuição de Refrigeração (CDU) para ser resfriado novamente, completando o ciclo.</li>
-                    </ol>
-                    <p>
-                        Este método é muito mais eficiente que o ar, pois a capacidade térmica do líquido é milhares de vezes maior.
-                    </p>
-                </div>
-
             </div>
         </div>
 
-    </div> </div>
+        <div class="metrics-view">
+            <div class="metric-box" id="m-temp">
+                <div class="metric-header">
+                    <div><div class="label">TEMPERATURA (°C)</div></div>
+                    <i class="fas fa-thermometer-full metric-icon" id="icon-temp"></i>
+                </div>
+                <div class="metric-value" id="val-temp-large">90°C</div>
+                <span class="metric-difference base" id="temp-diff">CENÁRIO BASE (MÁX. TEMP)</span>
+            </div>
+            
+            <div class="metric-box" id="m-pue">
+                <div class="metric-header">
+                    <div><div class="label">EFICIÊNCIA (PUE)</div></div>
+                    <i class="fas fa-bolt metric-icon" id="icon-pue"></i>
+                </div>
+                <div class="metric-value" id="val-pue">1.50</div>
+                <span class="metric-difference base" id="pue-diff">CENÁRIO BASE (100% DESPERDÍCIO)</span>
+            </div>
+            
+            <div class="metric-box" id="m-payback">
+                <div class="metric-header">
+                    <div><div class="label">PAYBACK ESTIMADO (ROI)</div></div>
+                    <i class="fas fa-money-bill-wave metric-icon" id="icon-payback"></i>
+                </div>
+                <div class="metric-value" id="val-payback">Indeterminado</div>
+                <span class="metric-difference highlight" style="font-size: 18px; background-color: #e8f0fe; color: #34495e;">Fator chave para o retorno financeiro.</span>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-    // --- SCRIPT ORIGINAL (Simulação do Chip) ---
+    // --- SCRIPT DE LÓGICA ---
     
     // DOM Elements
-    const chipTemp = document.getElementById('chip-temp');
-    const chipContainer = document.querySelector('.chip-container'); 
-    const airSink = document.getElementById('air-sink');
-    const dtcPlate = document.getElementById('dtc-plate');
-    const fluidFlowArea = document.getElementById('fluid-flow-area');
-    const valTemp = document.getElementById('val-temp');
+    const tempOverlay = document.getElementById('temp-overlay');
+    const valTempLarge = document.getElementById('val-temp-large');
     const valPUE = document.getElementById('val-pue');
-    const valDeltaP = document.getElementById('val-delta-p');
     const valPayback = document.getElementById('val-payback');
-    const scenarioExplanation = document.getElementById('scenario-explanation');
+    const chipLabel = document.getElementById('val-chip-temp');
     const buttons = document.querySelectorAll('.scenario-selector button');
+    const coolingAnimationArea = document.getElementById('cooling-animation-area'); 
+    
+    const coolerFan = document.getElementById('cooler-fan');
+    const iconTemp = document.getElementById('icon-temp'); 
+    const iconPUE = document.getElementById('icon-pue'); 
+    const iconPayback = document.getElementById('icon-payback'); 
+    
+    // Elementos de Diferença 
+    const tempDiffElement = document.getElementById('temp-diff');
+    const pueDiffElement = document.getElementById('pue-diff');
 
-    // Mapeamento de Cores e Métricas
+    // Mapeamento de Cenários
     const scenarios = {
         'ar': {
-            temp: '90°C', color: 'var(--temp-hot)', pue: '1.5', deltaP: 'Baixa (Ar)', payback: 'Indeterminado',
-            cooler: airSink, flowColor: 'linear-gradient(90deg, var(--fluid-air) 0%, #f39c12 50%, #e74c3c 100%)', flowCount: 6, flowDuration: '3s',
-            explanation: `
-                <strong>CENÁRIO 1: Ineficiência do Ar.</strong>
-                A <strong>Condução</strong> do calor do chip para o air sink é limitada e a <strong>Convecção</strong> pelo ar (linhas vermelhas/amarelas) é ineficiente. O chip atinge 90°C (ponto crítico), causando "thermal throttling" e limitando a performance.
-                O alto consumo dos ventiladores para mover o ar resulta em um PUE desfavorável de <strong>1.5</strong>.
-            `
+            temp: '90°C', tempNum: 90, color: 'var(--temp-hot)', pue: '1.50', pueNum: 1.5, payback: 'Indeterminado',
+            animationType: 'fan', particleCount: 0 
         },
         'dtc-laminar': {
-            temp: '75°C', color: 'var(--temp-warm)', pue: '1.35', deltaP: 'Baixa (Laminar)', payback: '3.0 Anos',
-            cooler: dtcPlate, flowColor: 'linear-gradient(90deg, #3498db 0%, #2ecc71 100%)', flowCount: 4, flowDuration: '4s',
-            explanation: `
-                <strong>CENÁRIO 2: Sub-otimização com Fluxo Laminar.</strong>
-                A <strong>Condução</strong> (para o Cold Plate) é muito mais eficiente, reduzindo a temperatura do chip para 75°C. No entanto, o fluido (linhas azuis/verdes) está em regime <strong>Laminar</strong>.
-                A <strong>Convecção</strong> é limitada porque o fluido não se mistura eficientemente, formando uma espessa "Camada Limite Térmica" próximo à superfície do chip. Isso impede a máxima remoção de calor, mantendo o PUE em <strong>1.35</strong>.
-            `
+            temp: '75°C', tempNum: 75, color: 'var(--temp-warm)', pue: '1.35', pueNum: 1.35, payback: '3.0 Anos',
+            animationType: 'particles', particleCount: 15 
         },
         'dtc-ml': {
-            temp: '60°C', color: 'var(--temp-cool)', pue: '1.15', deltaP: 'Média (Limiar da Turb.)', payback: '1.26 Anos',
-            cooler: dtcPlate, flowColor: 'linear-gradient(90deg, #1e90ff 0%, #f39c12 70%, #e74c3c 100%)', flowCount: 8, flowDuration: '2s',
-            explanation: `
-                <strong>CENÁRIO 3: SmartCool DTC-Pro (Otimizado por ML).</strong>
-                O módulo de Machine Learning ajusta dinamicamente a vazão do fluido para atingir o <strong>Limiar da Turbulência</strong> (Número de Reynolds ideal). A <strong>Fluidodinâmica</strong> é otimizada para máxima <strong>Convecção</strong> sem desperdício de energia.
-                A transferência de calor é máxima (linhas azuis/laranja/vermelhas), reduzindo a temperatura do chip para <strong>60°C</strong>. A perda de carga (ΔP) é otimizada, garantindo que a potência de bombeamento (P ∝ Q ⋅ ΔP) seja mínima para a eficiência máxima. O resultado é um PUE de <strong><span class="highlight">1.15</span></strong> e um Payback de <strong><span class="highlight">1.26 anos</span></strong>.
-            ` // <-- ΔP SUBSTITUÍDO AQUI
+            temp: '60°C', tempNum: 60, color: 'var(--temp-cool)', pue: '1.15', pueNum: 1.15, payback: '1.26 Anos',
+            animationType: 'particles', particleCount: 35 
         }
     };
 
-    function createFlowLines(config) {
-        if (!fluidFlowArea) return; 
-        fluidFlowArea.innerHTML = '';
-        const centerY = fluidFlowArea.offsetHeight / 2;
-        const spacing = 15;
-        for (let i = 0; i < config.flowCount; i++) {
-            const flow = document.createElement('div');
-            flow.className = 'flow-line';
-            const yPosition = centerY + (i - config.flowCount / 2 + 0.5) * spacing;
-            flow.style.top = `${yPosition}px`;
-            flow.style.left = `0px`;
-            flow.style.background = config.flowColor;
-            flow.style.animationDuration = config.flowDuration;
-            flow.style.animationDelay = `-${(i * parseFloat(config.flowDuration) / config.flowCount)}s`; 
-            fluidFlowArea.appendChild(flow);
+    function clearAnimations() {
+        coolerFan.style.opacity = '0';
+        const currentParticles = coolingAnimationArea.querySelectorAll('.cooling-particle');
+        currentParticles.forEach(p => p.remove());
+    }
+
+    function generateCoolingAnimation(scenarioConfig) {
+        clearAnimations(); 
+        
+        if (scenarioConfig.animationType === 'fan') {
+            coolerFan.style.opacity = '1';
+
+        } else if (scenarioConfig.animationType === 'particles') {
+            const animationDuration = 2.5; 
+            for (let i = 0; i < scenarioConfig.particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'cooling-particle';
+                particle.style.left = `${Math.random() * 90 + 5}%`; 
+                particle.style.animation = `particle-flow ${animationDuration}s linear infinite`; 
+                particle.style.animationDelay = `-${(i * (animationDuration / scenarioConfig.particleCount))}s`; 
+                coolingAnimationArea.appendChild(particle);
+            }
         }
+    }
+
+    function updateMetrics(config) {
+        // Atualiza o display do chip (Temperatura e Cor)
+        tempOverlay.style.backgroundColor = config.color;
+        chipLabel.textContent = config.temp; 
+        
+        // Atualiza as métricas maiores
+        valTempLarge.textContent = config.temp;
+        valPUE.textContent = config.pue;
+        valPayback.textContent = config.payback;
+
+        // =================================================================
+        // CORREÇÃO: Força as cores de destaque e borda para PUE e Payback
+        // =================================================================
+        
+        // TEMPERATURA (Muda de cor)
+        iconTemp.style.color = config.color; 
+        document.querySelector('#m-temp').style.borderColor = config.color;
+        valTempLarge.style.color = config.color;
+        valTempLarge.style.textShadow = `0 0 5px ${config.color}`; // Mantido o leve glow para temp
+
+        // EFICIÊNCIA (PUE) - Verde e Azul
+        iconPUE.style.color = 'var(--color-success)'; 
+        document.querySelector('#m-pue').style.borderColor = 'var(--color-success)';
+        valPUE.style.color = 'var(--color-success)';
+        valPUE.style.textShadow = 'none';
+
+        // PAYBACK (ROI) - Azul
+        iconPayback.style.color = 'var(--color-primary)';
+        document.querySelector('#m-payback').style.borderColor = 'var(--color-primary)';
+        valPayback.style.color = 'var(--color-primary)';
+        valPayback.style.textShadow = 'none';
+        
+        // =================================================================
+        // FIM DA CORREÇÃO
+        // =================================================================
+
+        // --- Destaque da Diferença (Lógica mantida) ---
+        const baseTemp = scenarios.ar.tempNum;
+        const basePUE = scenarios.ar.pueNum;
+
+        // TEMPERATURA (Diferença)
+        if (config.tempNum < baseTemp) {
+            const tempReduction = ((baseTemp - config.tempNum) / baseTemp) * 100;
+            tempDiffElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${tempReduction.toFixed(1)}% REDUÇÃO DE TEMPERATURA`;
+            tempDiffElement.classList.remove('base');
+            tempDiffElement.style.backgroundColor = 'var(--color-success)';
+            tempDiffElement.style.color = 'white';
+        } else {
+            tempDiffElement.innerHTML = 'CENÁRIO BASE (MÁX. TEMP)';
+            tempDiffElement.classList.add('base');
+            tempDiffElement.style.backgroundColor = 'var(--color-danger)';
+            tempDiffElement.style.color = 'white';
+        }
+        
+        // PUE (Diferença)
+        if (config.pueNum < basePUE) {
+            const pueReduction = ((basePUE - config.pueNum) / basePUE) * 100;
+            pueDiffElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${pueReduction.toFixed(1)}% MELHORIA DE EFICIÊNCIA (PUE)`;
+            pueDiffElement.classList.remove('base');
+            pueDiffElement.style.backgroundColor = 'var(--color-primary)';
+            pueDiffElement.style.color = 'white';
+        } else {
+            pueDiffElement.innerHTML = 'CENÁRIO BASE (MÁX. CUSTO)';
+            pueDiffElement.classList.add('base');
+            pueDiffElement.style.backgroundColor = 'var(--color-danger)';
+            pueDiffElement.style.color = 'white';
+        }
+
+        // Estilo do botão ativo
+        buttons.forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${config.scenarioKey}`).classList.add('active');
     }
 
     function simulate(scenarioKey) {
         const config = scenarios[scenarioKey];
-        if (chipContainer) { // Adiciona verificação se o elemento existe
-            chipContainer.style.transform = 'translate(-50%, -50%) rotateX(15deg) rotateY(-15deg) scale(0.98)';
-            setTimeout(() => {
-                 chipContainer.style.transform = 'translate(-50%, -50%) rotateX(15deg) rotateY(-15deg) scale(1.0)';
-            }, 100);
-            airSink.style.opacity = (scenarioKey === 'ar' ? 1 : 0);
-            dtcPlate.style.opacity = (scenarioKey !== 'ar' ? 1 : 0);
-            chipTemp.style.backgroundColor = config.color;
-            chipTemp.style.boxShadow = `0 5px 10px rgba(0,0,0,0.3), 0 0 15px ${config.color}`; 
-            createFlowLines(config);
-            valTemp.textContent = config.temp;
-            valPUE.textContent = config.pue;
-            valDeltaP.textContent = config.deltaP;
-            valPayback.textContent = config.payback;
-            scenarioExplanation.innerHTML = config.explanation;
-            document.querySelector('#m-temp .metric-icon').style.color = config.color;
-            buttons.forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`btn-${scenarioKey}`).classList.add('active');
-        }
+        config.scenarioKey = scenarioKey; 
+        
+        generateCoolingAnimation(config); 
+        updateMetrics(config); 
     }
 
     // Event Listeners para os Botões de Cenário
@@ -719,42 +446,9 @@
         });
     });
 
-    // --- 7. SCRIPT (Lógica das Abas) ---
+    // Inicia a simulação com o cenário 'ar' ao carregar
     document.addEventListener('DOMContentLoaded', () => {
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        // Define a primeira aba ("Simulação") como ativa por padrão
-        const firstTabButton = document.querySelector('.tab-btn[data-tab="tab-simulacao"]');
-        const firstTabContent = document.getElementById('tab-simulacao');
-        
-        if (firstTabButton && firstTabContent) {
-            firstTabButton.classList.add('active');
-            firstTabContent.classList.add('active');
-            simulate('ar'); // Inicia a simulação da primeira aba
-        }
-
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const tabId = button.getAttribute('data-tab');
-
-                // Remove a classe 'active' de todos os botões e conteúdos
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                tabContents.forEach(content => content.classList.remove('active'));
-
-                // Adiciona a classe 'active' ao botão clicado e ao conteúdo correspondente
-                button.classList.add('active');
-                document.getElementById(tabId).classList.add('active');
-                
-                // Se a aba de simulação for ativada, reinicia a simulação
-                if (tabId === 'tab-simulacao') {
-                     // Verifica qual cenário estava ativo ou reseta para 'ar'
-                    const activeScenarioBtn = document.querySelector('.scenario-selector button.active');
-                    const scenarioKey = activeScenarioBtn ? activeScenarioBtn.id.replace('btn-', '') : 'ar';
-                    simulate(scenarioKey);
-                }
-            });
-        });
+        simulate('ar');
     });
 
 </script>
